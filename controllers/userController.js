@@ -25,7 +25,7 @@ exports.registerUser = async (req, res, next) => {
       throw new Error("User already exist!");
     }
   } catch (err) {
-    next(err)
+    next(err);
   }
 };
 
@@ -46,9 +46,27 @@ exports.loginUser = async (req, res, next) => {
         token: generateToken(userExist._id),
       });
     } else {
-      throw new Error("Email or password dose not match")
+      throw new Error("Email or password dose not match");
     }
   } catch (err) {
-    next(err)
+    next(err);
+  }
+};
+
+//@desc   Read All User
+//@route  GET /api/va1/users
+//@access Private
+exports.readAllUsers = async (req, res, next) => {
+  try {
+    const users = await UserModel.find({});
+    
+    if (users.length > 0) {
+      res.json(users);
+    } else {
+      res.status(404);
+      throw new Error("Users not found");
+    }
+  } catch (err) {
+    next(err);
   }
 };
