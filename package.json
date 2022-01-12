@@ -1,5 +1,5 @@
 {
-  "name": "auth-nodejs-api",
+  "name": "auth-api-nodejs",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",

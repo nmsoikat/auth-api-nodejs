@@ -6,38 +6,37 @@ const generateToken = require("../utils/generateToken");
 //@desc   Register new user // bcrypt password
 //@route  POST /api/v1/users/register
 //@access Public
-exports.registerUser = async (req, res) => {
+exports.registerUser = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
 
     // user exist
     const userExist = await UserModel.findOne({ email });
 
-    if (userExist) {
-      console.log("user already exist");
-      return;
-    }
+    if (!userExist) {
+      const user = await UserModel.create({ username, email, password });
 
-    const user = await UserModel.create({ username, email, password });
-
-    if (user) {
-      res.json({ _id: user._id, username: user.username, email: user.email });
+      if (user) {
+        res.json({ _id: user._id, username: user.username, email: user.email });
+      } else {
+        throw new Error("User not created");
+      }
     } else {
-      console.log("User not created");
+      throw new Error("User already exist!");
     }
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    next(err)
   }
 };
 
 //@desc   Login user, match password, and get token
 //@route  POST /api/v1/users/login
 //@access Public
-exports.loginUser = async (req, res) => {
+exports.loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    const userExist = await UserModel.findOne({ email }).select('+password');
+    const userExist = await UserModel.findOne({ email }).select("+password");
 
     if (userExist && (await userExist.matchPassword(password))) {
       res.json({
@@ -47,9 +46,9 @@ exports.loginUser = async (req, res) => {
         token: generateToken(userExist._id),
       });
     } else {
-      console.log("Invalid username or password");
+      throw new Error("Email or password dose not match")
     }
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    next(err)
   }
 };
