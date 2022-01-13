@@ -7,3 +7,8 @@ npm i bcryptjs
 npm i jsonwebtoken
 
 npm i express mongoose dotenv morgan nodemon bcryptjs jsonwebtoken
+
+
+//--------- save token into postman 
+var res = pm.response.json();
+pm.environment.set('token', res.data.token);

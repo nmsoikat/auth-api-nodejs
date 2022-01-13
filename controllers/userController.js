@@ -10,11 +10,15 @@ exports.registerUser = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
 
+    // const { username, email, password, role } = req.body;
+    // warning: now someone can put role using api request like {"role": "admin"}
+    // I have use here only for testing.
+
     // user exist
     const userExist = await UserModel.findOne({ email });
 
     if (!userExist) {
-      const user = await UserModel.create({ username, email, password });
+      const user = await UserModel.create({ username, email, password});
 
       if (user) {
         res.json({ _id: user._id, username: user.username, email: user.email });
@@ -43,6 +47,7 @@ exports.loginUser = async (req, res, next) => {
         _id: userExist._id,
         username: userExist.username,
         email: userExist.email,
+        role: userExist.role,
         token: generateToken(userExist._id),
       });
     } else {
@@ -59,12 +64,36 @@ exports.loginUser = async (req, res, next) => {
 exports.readAllUsers = async (req, res, next) => {
   try {
     const users = await UserModel.find({});
-    
+
     if (users.length > 0) {
       res.json(users);
     } else {
       res.status(404);
       throw new Error("Users not found");
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+//@desc   Delete By Id
+//@route  DELETE /api/va1/users/:id
+//@access Private and only for admin
+exports.deleteUser = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const user = await UserModel.findByIdAndDelete(id);
+
+    if (user) {
+      res.json({
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      });
+    } else {
+      res.status(404);
+      throw new Error("User not found");
     }
   } catch (err) {
     next(err);
